@@ -1,5 +1,6 @@
 package com.java2nb.novel.handler;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.java2nb.novel.core.utils.HttpUtil;
 import com.java2nb.novel.entity.Book;
 import com.java2nb.novel.entity.BookCategory;
@@ -88,6 +89,14 @@ public abstract class BaseCrawler implements Crawler{
             bookIndexResult.add(bookIndex);
             bookContentResult.add(bookContent);
         });
+        if(CollectionUtil.isNotEmpty(bookIndexResult)){
+            //获取最新的章节
+            BookIndex lastBookIndex = bookIndexResult.get(bookIndexResult.size() - 1);
+            book.setLastIndexId(lastBookIndex.getId());
+            book.setLastIndexName(lastBookIndex.getIndexName());
+            book.setLastIndexUpdateTime(lastBookIndex.getUpdateTime());
+        }
+        //todo totalCounts
         bookService.saveBookAndIndexAndContent(book, bookIndexResult, bookContentResult);
         return true;
     }
