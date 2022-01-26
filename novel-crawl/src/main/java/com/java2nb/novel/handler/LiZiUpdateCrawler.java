@@ -13,6 +13,7 @@ import com.java2nb.novel.utils.Constants;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.Date;
@@ -21,10 +22,11 @@ import java.util.Map;
 
 /**
  * @Author Jun Yang
- * @Date 2022/1/25 5:03 下午
+ * @Date 2022/1/26 11:22 上午
  * @Version 1.0
  */
-public class LiZiCrawler extends BaseCrawler{
+@Component
+public class LiZiUpdateCrawler extends BaseCrawlerUpdate {
 
     @Value("${li.zi.crawler.host:http://localhost:8087/}")
     String host;
@@ -33,14 +35,32 @@ public class LiZiCrawler extends BaseCrawler{
     String BOOK_ID  = "&bookId=";
     String CHAPTER_ID  = "&chapterId=";
 
+    @Override
+    public BookIndex buildBookIndex(Map<String, Object> bookIndexMap, Book book) {
+        BookIndex bookIndex = new BookIndex();
+        long l = idWorker.nextId();
+        bookIndex.setId(l);
+        bookIndex.setBookId(book.getId());
+        bookIndex.setIndexName(MapUtils.getString(bookIndexMap,"chapterName"));
+        bookIndex.setCreateTime(new Date());
+        bookIndex.setIndexNum(MapUtils.getInteger(bookIndexMap,"chapterId"));
+        bookIndex.setIsVip(MapUtils.getByte(bookIndexMap,"isFree"));
+        String updateTime = MapUtils.getString(bookIndexMap, "updateTime");
+        bookIndex.setUpdateTime(DateUtil.parse(updateTime,"YYYY-MM-dd hh:mm:ss"));
+        return bookIndex;
+    }
 
     @Override
-    public List<String> formatBookIdList(String bookIdListStr) {
-        if(StringUtils.isBlank(bookIdListStr)){
-            return Collections.emptyList();
+    public BookContent buildBookContent(BookIndex bookIndex, Book book, String content) {
+        if(StringUtils.isBlank(content)){
+            return null;
         }
-        List<String> idList = JSONUtil.toList(bookIdListStr,String.class);
-        return idList;
+        BookContent bookContent = new BookContent();
+        int wordCount = StringUtil.getStrValidWordCount(content);
+        bookIndex.setWordCount(wordCount);
+        bookContent.setContent(content);
+        bookContent.setIndexId(bookIndex.getId());
+        return bookContent;
     }
 
     @Override
@@ -79,33 +99,6 @@ public class LiZiCrawler extends BaseCrawler{
         return book;
     }
 
-    @Override
-    public BookIndex buildBookIndex(Map<String, Object> bookIndexMap, Book book) {
-        BookIndex bookIndex = new BookIndex();
-        Long indexId = idWorker.nextId();
-        bookIndex.setId(indexId);
-        bookIndex.setBookId(book.getId());
-        bookIndex.setIndexName(MapUtils.getString(bookIndexMap,"chapterName"));
-        bookIndex.setCreateTime(new Date());
-        bookIndex.setIndexNum(MapUtils.getInteger(bookIndexMap,"chapterId"));
-        bookIndex.setIsVip(MapUtils.getByte(bookIndexMap,"isFree"));
-        String updateTime = MapUtils.getString(bookIndexMap, "updateTime");
-        bookIndex.setUpdateTime(DateUtil.parse(updateTime,"YYYY-MM-dd hh:mm:ss"));
-        return bookIndex;
-    }
-
-    @Override
-    public BookContent buildBookContent(BookIndex bookIndex, Book book, String content) {
-        if(StringUtils.isBlank(content)){
-            return null;
-        }
-        BookContent bookContent = new BookContent();
-        int wordCount = StringUtil.getStrValidWordCount(content);
-        bookIndex.setWordCount(wordCount);
-        bookContent.setContent(content);
-        bookContent.setIndexId(bookIndex.getId());
-        return bookContent;
-    }
 
     @Override
     public Integer sourceId() {
@@ -113,22 +106,16 @@ public class LiZiCrawler extends BaseCrawler{
     }
 
     @Override
-    public String getBookListUrl() {
-        return host+"books?"+PARTNER_ID;
-    }
-
-    @Override
     public String getBookDetailUrl(String bookId) {
         return host+"bookInfo?"+PARTNER_ID+""+BOOK_ID+bookId;
     }
-
     @Override
     public String getChapterListUrl(String bookId) {
         return host+"chapters?"+PARTNER_ID+BOOK_ID+bookId;
     }
-
     @Override
     public String getChapterContent(String bookId, String chapterId) {
         return host+"chapterInfo?"+PARTNER_ID+BOOK_ID+bookId+CHAPTER_ID+chapterId;
     }
+
 }

@@ -1,6 +1,7 @@
 package com.java2nb.novel.service;
 
 import com.java2nb.novel.entity.Book;
+import com.java2nb.novel.entity.BookCategory;
 import com.java2nb.novel.entity.BookContent;
 import com.java2nb.novel.entity.BookIndex;
 
@@ -82,4 +83,34 @@ public interface BookService {
      * @return 小说对象
      * */
     Book queryBookByBookNameAndAuthorName(String bookName, String authorName);
+
+    /**
+     * 查询
+     * @param sourceBookId
+     * @return
+     */
+    Book findBySourceBookId(String sourceBookId);
+
+    /**
+     * 修改主表 保存章节列表
+     * @param book
+     * @param bookIndexList
+     * @param bookContentList
+     */
+    public void saveBookIndexAndContent(Book book, List<BookIndex> bookIndexList, List<BookContent> bookContentList);
+
+    /**
+     * 章节是否已经存在
+     * @param bookId
+     * @param indexNum
+     * @return
+     */
+    public boolean queryIsExistBookIndex(Long bookId, Integer indexNum);
+
+    /**
+     * 查询分类
+     * @param catId
+     * @return
+     */
+    BookCategory queryCategoryByCatId(int catId);
 }

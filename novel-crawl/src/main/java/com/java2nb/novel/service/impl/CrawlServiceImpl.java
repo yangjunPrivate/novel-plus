@@ -2,6 +2,9 @@ package com.java2nb.novel.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.PageHelper;
+import com.java2nb.novel.core.constants.CrawlerConstants;
+import com.java2nb.novel.handler.Crawler;
+import com.java2nb.novel.handler.CrawlerHandlerSupport;
 import io.github.xxyopen.model.page.PageBean;
 import com.java2nb.novel.core.cache.CacheKey;
 import com.java2nb.novel.core.cache.CacheService;
@@ -31,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.mybatis.dynamic.sql.render.RenderingStrategies;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -61,6 +65,9 @@ public class CrawlServiceImpl implements CrawlService {
     private final CacheService cacheService;
 
     private final IdWorker idWorker = IdWorker.INSTANCE;
+
+    @Autowired
+    CrawlerHandlerSupport crawlerHandlerSupport;
 
 
     @Override
@@ -134,16 +141,26 @@ public class CrawlServiceImpl implements CrawlService {
                 //该爬虫源已经停止运行了,修改数据库状态，并启动线程爬取小说数据加入到runningCrawlThread中
                 SpringUtil.getBean(CrawlService.class).updateCrawlSourceStatus(sourceId, sourceStatus);
                 RuleBean ruleBean = new ObjectMapper().readValue(source.getCrawlRule(), RuleBean.class);
-
                 Set<Long> threadIds = new HashSet<>();
-                //按分类开始爬虫解析任务
-                for (int i = 1; i < 8; i++) {
-                    final int catId = i;
-                    Thread thread = new Thread(() -> CrawlServiceImpl.this.parseBookList(catId, ruleBean, sourceId));
-                    thread.start();
-                    //thread加入到监控缓存中
-                    threadIds.add(thread.getId());
+                //如果是指定范围id 采用接口调用方式获取数据内容
+                if(sourceId >= CrawlerConstants.SOURCE_ID_START && sourceId <= CrawlerConstants.SOURCE_ID_END){
+                    Crawler crawlerHandler = crawlerHandlerSupport.getCrawlerHandler(sourceId);
+                    if(crawlerHandler != null){
+                        Thread thread = new Thread(() -> crawlerHandler.crawl());
+                        thread.start();
+                        //thread加入到监控缓存中
+                        threadIds.add(thread.getId());
+                    }
+                }else {
+                    //按分类开始爬虫解析任务
+                    for (int i = 1; i < 8; i++) {
+                        final int catId = i;
+                        Thread thread = new Thread(() -> CrawlServiceImpl.this.parseBookList(catId, ruleBean, sourceId));
+                        thread.start();
+                        //thread加入到监控缓存中
+                        threadIds.add(thread.getId());
 
+                    }
                 }
                 cacheService.setObject(CacheKey.RUNNING_CRAWL_THREAD_KEY_PREFIX + sourceId, threadIds);
 

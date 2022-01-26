@@ -1,6 +1,8 @@
 package com.java2nb.novel.service.impl;
 
+import com.github.pagehelper.PageHelper;
 import com.java2nb.novel.entity.Book;
+import com.java2nb.novel.entity.BookCategory;
 import com.java2nb.novel.entity.BookContent;
 import com.java2nb.novel.entity.BookIndex;
 import com.java2nb.novel.mapper.*;
@@ -8,20 +10,21 @@ import com.java2nb.novel.service.BookContentService;
 import com.java2nb.novel.service.BookService;
 import com.java2nb.novel.utils.Constants;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.mybatis.dynamic.sql.render.RenderingStrategies;
+import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tk.mybatis.orderbyhelper.OrderByHelper;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.java2nb.novel.mapper.BookDynamicSqlSupport.crawlBookId;
 import static com.java2nb.novel.mapper.BookDynamicSqlSupport.crawlSourceId;
+import static com.java2nb.novel.mapper.BookIndexDynamicSqlSupport.bookIndex;
 import static com.java2nb.novel.mapper.CrawlSourceDynamicSqlSupport.id;
 import static org.mybatis.dynamic.sql.SqlBuilder.*;
 import static org.mybatis.dynamic.sql.select.SelectDSL.select;
@@ -40,6 +43,7 @@ public class BookServiceImpl implements BookService {
     private final CrawlBookIndexMapper bookIndexMapper;
 
     private final Map<String, BookContentService> bookContentServiceMap;
+
 
     @Value("${content.save.storage}")
     private String storageType;
@@ -76,6 +80,17 @@ public class BookServiceImpl implements BookService {
                 .render(RenderingStrategies.MYBATIS3)).get(0).getName();
     }
 
+    @Override
+    public BookCategory queryCategoryByCatId(int catId) {
+        return bookCategoryMapper.selectMany(select(BookCategoryDynamicSqlSupport.name,BookCategoryDynamicSqlSupport.workDirection,BookCategoryDynamicSqlSupport.id)
+                .from(BookCategoryDynamicSqlSupport.bookCategory)
+                .where(id, isEqualTo(catId))
+                .build()
+                .render(RenderingStrategies.MYBATIS3)).get(0);
+    }
+
+
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void saveBookAndIndexAndContent(Book book, List<BookIndex> bookIndexList, List<BookContent> bookContentList) {
@@ -97,7 +112,22 @@ public class BookServiceImpl implements BookService {
 
             }
         }
+    }
 
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void saveBookIndexAndContent(Book book, List<BookIndex> bookIndexList, List<BookContent> bookContentList) {
+        //保存小说主表
+
+        book.setUpdateTime(new Date());
+        bookMapper.updateByPrimaryKeySelective(book);
+
+        //批量保存目录和内容
+        bookIndexList.forEach(bookIndex -> {
+            bookIndex.setStorageType(storageType);
+        });
+        bookIndexMapper.insertMultiple(bookIndexList);
+        bookContentServiceMap.get(storageType).saveBookContent(bookContentList, book.getId());
 
     }
 
@@ -178,6 +208,23 @@ public class BookServiceImpl implements BookService {
 
         return null;
 
+    }
+
+    @Override
+    public Book findBySourceBookId(String sourceBookId) {
+        return bookMapper.selectOne(select(BookDynamicSqlSupport.authorName, BookDynamicSqlSupport.bookDesc, BookDynamicSqlSupport.bookName, BookDynamicSqlSupport.bookStatus, BookDynamicSqlSupport.catId, BookDynamicSqlSupport.catName)
+                .from(BookDynamicSqlSupport.book)
+                .where(crawlBookId, isEqualTo(sourceBookId))
+                .build()
+                .render(RenderingStrategies.MYBATIS3)).get();
+    }
+
+    @Override
+    public boolean queryIsExistBookIndex(Long bookId, Integer indexNum) {
+        return bookMapper.count(countFrom(BookIndexDynamicSqlSupport.bookIndex).where(BookIndexDynamicSqlSupport.bookId, isEqualTo(bookId))
+                .and(BookIndexDynamicSqlSupport.indexNum, isEqualTo(indexNum))
+                .build()
+                .render(RenderingStrategies.MYBATIS3)) > 0;
     }
 
 }
