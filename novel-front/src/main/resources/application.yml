@@ -3,7 +3,7 @@ server:
 
 spring:
   profiles:
-    active: dev
+    active: prod
     include: website,alipay,oss,fastdfs
 
 
@@ -29,16 +29,16 @@ spring:
 
 redisson:
   singleServerConfig:
-    address: 127.0.0.1:6379
+    address: 172.31.31.170:6379
 
 jwt:
-  secret: novel!#20191230
+  secret: lishu!#20221680
   expiration: 604800
 
 #缓存管理密码
 cache:
   manager:
-    password: novel@2020117
+    password: lishu!#20221680
 
 
 # 防止XSS攻击
