@@ -21,14 +21,16 @@
             <ul class="list">
                 <li class="so_pd" id="workDirection">
                     <span class="tit">作品频道：</span>
-                    <a filter-value="0" href="javascript:listBookCategory();search(1,20)" class="on">男频</a>
-                    <a filter-value="1" href="javascript:listBookCategory();search(1,20)">女频</a>
+                    <a filter-value="1" href="javascript:listBookCategory();search(1,20)" class="on">女频</a>
+                    <a filter-value="0" href="javascript:listBookCategory();search(1,20)" >男频</a>
+
+
                 </li>
                 <li id="idGirl" class="so_class">
                     <span class="tit">作品分类：</span>
-                    <span class="so_girl" id="girlCategoryList" style="display: none;">
+                    <span class="so_girl" id="girlCategoryList">
                         </span>
-                    <span class="so_boy" id="boyCategoryList">
+                    <span class="so_boy" id="boyCategoryList" style="display: none;">
                         </span>
                 </li>
                <!-- <li class="so_free">
@@ -104,7 +106,7 @@
 
 <script type="text/javascript">
 
-    var workDirection;
+    var workDirection = $(".so_pd>.on").attr("filter-value");
     var catId = getSearchString('c');
 
     listBookCategory(catId);
@@ -298,12 +300,12 @@
             $(".so_pd>.on").removeClass("on");
             if (index == 2) {
                 $(".so_pd a").eq(1).addClass("on");
-                $(".so_girl").show();
-                $(".so_boy").hide();
-            } else {
-                $(".so_pd a").eq(0).addClass("on");
                 $(".so_girl").hide();
                 $(".so_boy").show();
+            } else {
+                $(".so_pd a").eq(0).addClass("on");
+                $(".so_girl").show();
+                $(".so_boy").hide();
             }
         })
         $(".so_progress a").click(function () {

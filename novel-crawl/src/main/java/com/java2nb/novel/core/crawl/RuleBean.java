@@ -25,6 +25,8 @@ public class RuleBean {
 
     private Map<String,Byte> bookStatusRule;
 
+    private Map<String,Map<String,Object>> jsonData;
+
     private String bookIdPatten;
     private String pagePatten;
     private String totalPagePatten;

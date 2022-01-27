@@ -153,8 +153,13 @@
                                 <li><input type="text" id="contentEnd" class="s_input icon_key"
                                            placeholder="小说内容结束截取字符串："></li>
 
+                                示例：<b>&lt;{100001:10002}&gt;</b>
+                                <li><input type="text" id="jsonData" class="s_input icon_key"
+                                           placeholder="json格式映射关系映射："></li>
+
                                 <li><input type="button" onclick="addCrawlSource()" name="btnRegister" value="提交"
                                            id="btnRegister" class="btn_red"></li>
+
                             </ul>
                         </div>
                     </form>
@@ -412,6 +417,10 @@
         }
 
         crawlRule.contentEnd = contentEnd;
+
+        var jsonData = $("#jsonData").val();
+        var jsonObj = JSON.parse(jsonData);
+        crawlRule.jsonData = jsonObj;
 
 
         $.ajax({

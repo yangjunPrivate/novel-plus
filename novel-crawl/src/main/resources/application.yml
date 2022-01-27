@@ -19,7 +19,7 @@ admin:
 #随着小说数量的增多可以逐渐增加，但建议不要超出CPU的线程数
 crawl:
   update:
-    thread: 1
+    thread: 0
 
 
 

@@ -10,6 +10,7 @@ import com.java2nb.novel.service.BookService;
 import com.java2nb.novel.service.CrawlService;
 import io.github.xxyopen.util.IdWorker;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -27,6 +28,7 @@ import static com.java2nb.novel.core.utils.HttpUtil.getByHttpClientWithChrome;
  * @Version 1.0
  */
 @Component
+@Slf4j
 public abstract class BaseCrawlerUpdate implements CrawlerUpdate{
 
     @Autowired

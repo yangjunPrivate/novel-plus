@@ -101,6 +101,7 @@ public class BookServiceImpl implements BookService {
                 //保存小说主表
 
                 book.setCreateTime(new Date());
+                book.setUpdateTime(new Date());
                 bookMapper.insertSelective(book);
 
                 //批量保存目录和内容

@@ -10,6 +10,7 @@ import com.java2nb.novel.entity.BookCategory;
 import com.java2nb.novel.entity.BookContent;
 import com.java2nb.novel.entity.BookIndex;
 import com.java2nb.novel.utils.Constants;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,9 +27,10 @@ import java.util.Map;
  * @Version 1.0
  */
 @Component
+@Slf4j
 public class LiZiUpdateCrawler extends BaseCrawlerUpdate {
 
-    @Value("${li.zi.crawler.host:http://localhost:8087/}")
+    @Value("${li.zi.crawler.host:http://localhost:8089/commonEmpower/}")
     String host;
     String PARTNER_ID = "partnerId=168";
 
@@ -65,7 +67,7 @@ public class LiZiUpdateCrawler extends BaseCrawlerUpdate {
 
     @Override
     public List<Map> formatBookIndex(String bookIndexStr, Book book) {
-        JSONObject data = JSONUtil.parseObj(bookIndexStr);
+        JSONObject data = JSONUtil.parseObj(bookIndexStr).getJSONObject("data");
         if(data.isEmpty()){
             return Collections.emptyList();
         }

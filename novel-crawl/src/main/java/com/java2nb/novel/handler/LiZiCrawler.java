@@ -1,6 +1,7 @@
 package com.java2nb.novel.handler;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.java2nb.novel.core.constants.CrawlerConstants;
@@ -10,23 +11,29 @@ import com.java2nb.novel.entity.BookCategory;
 import com.java2nb.novel.entity.BookContent;
 import com.java2nb.novel.entity.BookIndex;
 import com.java2nb.novel.utils.Constants;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @Author Jun Yang
  * @Date 2022/1/25 5:03 下午
  * @Version 1.0
  */
+@Component
+@Slf4j
 public class LiZiCrawler extends BaseCrawler{
 
-    @Value("${li.zi.crawler.host:http://localhost:8087/}")
+    @Value("${li.zi.crawler.host:http://localhost:8089/commonEmpower/}")
     String host;
     String PARTNER_ID = "partnerId=168";
 
@@ -39,13 +46,13 @@ public class LiZiCrawler extends BaseCrawler{
         if(StringUtils.isBlank(bookIdListStr)){
             return Collections.emptyList();
         }
-        List<String> idList = JSONUtil.toList(bookIdListStr,String.class);
-        return idList;
+        JSONArray data = JSONUtil.parseObj(bookIdListStr).getJSONArray("data");
+        return data.stream().map(t -> JSONUtil.parseObj(t).getStr("bookId")).collect(Collectors.toList());
     }
 
     @Override
     public List<Map> formatBookIndex(String bookIndexStr, Book book) {
-        JSONObject data = JSONUtil.parseObj(bookIndexStr);
+        JSONObject data = JSONUtil.parseObj(bookIndexStr).getJSONObject("data");
         if(data.isEmpty()){
             return Collections.emptyList();
         }
@@ -54,7 +61,7 @@ public class LiZiCrawler extends BaseCrawler{
 
     @Override
     public Book formatBook(String bookId, String bookDetailStr) {
-        JSONObject jsonObject = JSONUtil.parseObj(bookDetailStr);
+        JSONObject jsonObject = JSONUtil.parseObj(bookDetailStr).getJSONObject("data");
         Book book = new Book();
         book.setBookName(jsonObject.getStr("bookName"));
         book.setAuthorName(jsonObject.getStr("authorName"));
@@ -90,15 +97,17 @@ public class LiZiCrawler extends BaseCrawler{
         bookIndex.setIndexNum(MapUtils.getInteger(bookIndexMap,"chapterId"));
         bookIndex.setIsVip(MapUtils.getByte(bookIndexMap,"isFree"));
         String updateTime = MapUtils.getString(bookIndexMap, "updateTime");
-        bookIndex.setUpdateTime(DateUtil.parse(updateTime,"YYYY-MM-dd hh:mm:ss"));
+        bookIndex.setUpdateTime(DateUtil.parse(updateTime,"yyyy-MM-dd HH:mm:ss"));
         return bookIndex;
     }
 
     @Override
-    public BookContent buildBookContent(BookIndex bookIndex, Book book, String content) {
-        if(StringUtils.isBlank(content)){
+    public BookContent buildBookContent(BookIndex bookIndex, Book book, String contentStr) {
+        if(StringUtils.isBlank(contentStr)){
             return null;
         }
+        JSONObject data = JSONUtil.parseObj(contentStr).getJSONObject("data");
+        String content = data.getStr("content","");
         BookContent bookContent = new BookContent();
         int wordCount = StringUtil.getStrValidWordCount(content);
         bookIndex.setWordCount(wordCount);

@@ -45,7 +45,7 @@ public class StarterListener implements ServletContextListener {
                     try {
                         //1.查询最新目录更新时间在一个月之内的前100条需要更新的数据
                         Date currentDate = new Date();
-                        Date startDate = DateUtils.addDays(currentDate, -30);
+                        Date startDate = DateUtils.addDays(currentDate, -1);
                         List<Book> bookList;
                         synchronized (this) {
                             bookList = bookService.queryNeedUpdateBook(startDate, 100);

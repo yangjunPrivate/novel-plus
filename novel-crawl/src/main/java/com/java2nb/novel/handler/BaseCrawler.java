@@ -10,12 +10,16 @@ import com.java2nb.novel.service.BookService;
 import com.java2nb.novel.service.CrawlService;
 import io.github.xxyopen.util.IdWorker;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static com.java2nb.novel.core.utils.HttpUtil.getByHttpClientWithChrome;
 
@@ -24,6 +28,8 @@ import static com.java2nb.novel.core.utils.HttpUtil.getByHttpClientWithChrome;
  * @Date 2022/1/25 3:58 下午
  * @Version 1.0
  */
+@Component
+@Slf4j
 public abstract class BaseCrawler implements Crawler{
 
     @Autowired
@@ -84,11 +90,12 @@ public abstract class BaseCrawler implements Crawler{
         List<BookContent> bookContentResult = new ArrayList<>();
         bookIndexList.forEach(bookIndexSource -> {
             //获取章节内容
-            String sourceChapterId = (String)bookIndexSource.get("sourceChapterId");
-            String chapterContent = getChapterContent(sourceBookId, sourceChapterId);
+            String sourceChapterId = (String)bookIndexSource.get("chapterId");
+            String chapterContentUrl = getChapterContent(sourceBookId, sourceChapterId);
+            String chapterContentStr = getByHttpClientWithChrome(chapterContentUrl);
             //构建bookIndex
             BookIndex bookIndex = buildBookIndex(bookIndexSource, book);
-            BookContent bookContent = buildBookContent(bookIndex, book, chapterContent);
+            BookContent bookContent = buildBookContent(bookIndex, book, chapterContentStr);
             bookIndexResult.add(bookIndex);
             bookContentResult.add(bookContent);
         });
@@ -147,11 +154,15 @@ public abstract class BaseCrawler implements Crawler{
             return CrawlerConstants.UNDEFINED_CATE_ID;
         }
         RuleBean ruleBean = new ObjectMapper().readValue(crawlRule, RuleBean.class);
-        Map<String, String> catIdRule = ruleBean.getCatIdRule();
-        if(CollectionUtil.isEmpty(catIdRule) || StringUtils.isBlank(catIdRule.get(sourceCatId))){
+        Map<String, Map<String, Object>> jsonData = ruleBean.getJsonData();
+        if(CollectionUtil.isEmpty(jsonData)){
             return CrawlerConstants.UNDEFINED_CATE_ID;
         }
-        return Integer.valueOf(catIdRule.get(sourceCatId));
+        Map<String, Object> catIdRule = jsonData.get(CrawlerConstants.BOOK_CATEGORY);
+        if(CollectionUtil.isEmpty(catIdRule) || catIdRule.get(sourceCatId) == null){
+            return CrawlerConstants.UNDEFINED_CATE_ID;
+        }
+        return MapUtils.getInteger(catIdRule,sourceCatId);
     }
 
     @SneakyThrows
@@ -166,11 +177,15 @@ public abstract class BaseCrawler implements Crawler{
             return CrawlerConstants.DEFAULT_BOOK_STATUS;
         }
         RuleBean ruleBean = new ObjectMapper().readValue(crawlRule, RuleBean.class);
-        Map<String, Byte> bookStatusRule = ruleBean.getBookStatusRule();
+        Map<String, Map<String, Object>> jsonData = ruleBean.getJsonData();
+        if(CollectionUtil.isEmpty(jsonData)){
+            return CrawlerConstants.DEFAULT_BOOK_STATUS;
+        }
+        Map<String, Object> bookStatusRule = jsonData.get(CrawlerConstants.BOOK_STATUS);
         if(CollectionUtil.isEmpty(bookStatusRule) || bookStatusRule.get(sourceBookStatus) == null){
             return CrawlerConstants.DEFAULT_BOOK_STATUS;
         }
-        return bookStatusRule.get(sourceBookStatus);
+        return MapUtils.getByte(bookStatusRule,sourceBookStatus);
     }
 
 
