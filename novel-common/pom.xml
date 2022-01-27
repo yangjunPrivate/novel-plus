@@ -12,7 +12,7 @@
     <artifactId>novel-common</artifactId>
     <packaging>jar</packaging>
     <name>novel-common</name>
-    <description>小说精品屋 通用模块</description>
+    <description>栗书文学 通用模块</description>
 
 
     <dependencies>

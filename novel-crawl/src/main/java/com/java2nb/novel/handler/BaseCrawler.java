@@ -1,6 +1,7 @@
 package com.java2nb.novel.handler;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.json.JSONUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.java2nb.novel.core.constants.CrawlerConstants;
 import com.java2nb.novel.core.crawl.RuleBean;
@@ -44,9 +45,11 @@ public abstract class BaseCrawler implements Crawler{
     @Override
     public void crawl() {
         //获取列表
+        log.info("start crawl books");
         String bookListUrl = getBookListUrl();
         String bookListHtml = HttpUtil.getByHttpClientWithChrome(bookListUrl);
         List<String> bookIdList = formatBookIdList(bookListHtml);
+        log.info("start crawl books `ids={}", JSONUtil.toJsonStr(bookIdList));
         if(CollectionUtils.isEmpty(bookIdList)){
             return;
         }
@@ -139,6 +142,9 @@ public abstract class BaseCrawler implements Crawler{
     @SneakyThrows
     public BookCategory getCrawlerBookCategory(String sourceCatId){
         Integer crawlerCatId = getCrawlerCatId(sourceCatId);
+        if(crawlerCatId == null){
+            crawlerCatId = 8;
+        }
         return bookService.queryCategoryByCatId(crawlerCatId);
     }
 

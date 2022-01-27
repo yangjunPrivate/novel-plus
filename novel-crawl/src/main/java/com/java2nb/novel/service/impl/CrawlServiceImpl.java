@@ -136,7 +136,6 @@ public class CrawlServiceImpl implements CrawlService {
             //查询爬虫源状态和规则
             CrawlSource source = queryCrawlSource(sourceId);
             Byte realSourceStatus = source.getSourceStatus();
-
             if (realSourceStatus == (byte) 0) {
                 //该爬虫源已经停止运行了,修改数据库状态，并启动线程爬取小说数据加入到runningCrawlThread中
                 SpringUtil.getBean(CrawlService.class).updateCrawlSourceStatus(sourceId, sourceStatus);

@@ -5,9 +5,10 @@ cd ../
 
 #部署目路
 DEPLOY_DIR=`pwd`
+echo "DEPLOY_DIR: $DEPLOY_DIR "
 #获取到当前目录的名称
 SERVER_NAME=`basename $DEPLOY_DIR`
-
+echo "SERVER_NAME: $SERVER_NAME "
 #应用进程
 PIDS=`ps -ef | grep java | grep "$ENGINE" |awk '{print $2}'`
 #设置日志文件的输出目录
@@ -17,6 +18,8 @@ if [ ! -d $LOGS_DIR ]; then
 fi
 #日志
 STDOUT_FILE=$LOGS_DIR/stdout.log
+
+echo "LOGS_DIR: $LOGS_DIR "
 #JAVA 环境配置
 JAVA_OPTS=" -Djava.net.preferIPv4Stack=true -Dlog.home=$LOGS_DIR"
 

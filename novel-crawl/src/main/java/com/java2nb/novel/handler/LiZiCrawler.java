@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class LiZiCrawler extends BaseCrawler{
 
-    @Value("${li.zi.crawler.host:http://localhost:8089/commonEmpower/}")
+    @Value("${li.zi.crawler.host:http://localhost:9102/commonEmpower/}")
     String host;
     String PARTNER_ID = "partnerId=168";
 
@@ -73,9 +73,16 @@ public class LiZiCrawler extends BaseCrawler{
         book.setScore(6.5f);
         String bookTypeId = jsonObject.getStr("bookTypeId", "0");
         BookCategory category = getCrawlerBookCategory(bookTypeId);
-        book.setWorkDirection(category.getWorkDirection());
-        book.setCatId(category.getId());
-        book.setCatName(category.getName());
+        if(category != null){
+            book.setWorkDirection(category.getWorkDirection());
+            book.setCatId(category.getId());
+            book.setCatName(category.getName());
+        }else {
+            book.setWorkDirection((byte)1);
+            book.setCatId(8);
+            book.setCatName("总裁豪门");
+        }
+
 
         Integer status = jsonObject.getInt("status", 0);
         Byte crawlerBookStatus = getCrawlerBookStatus(status + "");
