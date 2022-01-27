@@ -1,5 +1,6 @@
 package com.java2nb.novel.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.github.pagehelper.PageHelper;
 import com.java2nb.novel.entity.Book;
 import com.java2nb.novel.entity.BookCategory;
@@ -82,11 +83,15 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public BookCategory queryCategoryByCatId(int catId) {
-        return bookCategoryMapper.selectMany(select(BookCategoryDynamicSqlSupport.name,BookCategoryDynamicSqlSupport.workDirection,BookCategoryDynamicSqlSupport.id)
+        List<BookCategory> bookCategories = bookCategoryMapper.selectMany(select(BookCategoryDynamicSqlSupport.name, BookCategoryDynamicSqlSupport.workDirection, BookCategoryDynamicSqlSupport.id)
                 .from(BookCategoryDynamicSqlSupport.bookCategory)
                 .where(id, isEqualTo(catId))
                 .build()
-                .render(RenderingStrategies.MYBATIS3)).get(0);
+                .render(RenderingStrategies.MYBATIS3));
+        if(CollectionUtil.isEmpty(bookCategories)){
+            return null;
+        }
+        return bookCategories.get(0);
     }
 
 

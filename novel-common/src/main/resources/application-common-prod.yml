@@ -76,7 +76,7 @@ logging:
 
 content:
   save:
-    storage: file #存储介质，db：数据库，file：txt文本
+    storage: txt #存储介质，db：数据库，file：txt文本
     path: /root/lishu/books  #txt小说文本保存路径
 
 
