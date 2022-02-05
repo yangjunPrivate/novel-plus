@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head th:replace="common/header :: common_head(~{::title},~{},~{::link},~{})">
+    <title th:text="'充值_'+${application.website.name}"></title>
+    <link rel="stylesheet" href="/css/base.css"/>
+    <link rel="stylesheet" href="/css/main.css"/>
+</head>
+<body class="">
+
+<div th:replace="common/top :: top('')">
+</div>
+
+<div class="main box_center cf">
+    <img src="/images/welfare.jpg"/>
+</div>
+
+
+<div th:replace="common/footer :: footer">
+</div>
+<div th:replace="common/js :: js"></div>
+<script src="/javascript/pay.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+
+
+
+    //查询用户信息
+    $.ajax({
+        type: "get",
+        url: "/user/userInfo",
+        data: {},
+        dataType: "json",
+        success: function (data) {
+            if (data.code == 200) {
+                if(data.data.nickName){
+                    $("#my_name").html(data.data.nickName);
+                }else{
+                    $("#my_name").html(data.data.username);
+                }
+
+                $("#accountBalance").html(data.data.accountBalance);
+
+            } else if (data.code == 1001) {
+                //未登录
+                location.href = '/user/login.html?originUrl=' + decodeURIComponent(location.href);
+
+            } else {
+                layer.alert(data.msg);
+            }
+
+        },
+        error: function () {
+            layer.alert('网络异常');
+        }
+    })
+
+    $("#ulZFWX").find("li").click(function () {
+
+        var payType = $("#ulPayType").find("li.on").attr("valp");
+
+        if(payType == 2){
+            layer.alert("微信支付暂未开通，敬请期待");
+            return ;
+        }
+
+        $("#pValue").val($(this).attr("vals"));
+
+        $("#payform").submit();
+
+
+
+
+
+    });
+</script>
+
+
+</body>
+</html>

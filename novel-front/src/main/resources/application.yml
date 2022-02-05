@@ -3,7 +3,7 @@ server:
 
 spring:
   profiles:
-    active: prod
+    active: dev
     include: website,alipay,oss,fastdfs
 
 

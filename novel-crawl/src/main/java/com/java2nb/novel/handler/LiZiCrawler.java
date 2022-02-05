@@ -115,10 +115,16 @@ public class LiZiCrawler extends BaseCrawler{
         }
         JSONObject data = JSONUtil.parseObj(contentStr).getJSONObject("data");
         String content = data.getStr("content","");
+        //根据换行分割 然后每个前面拼接4个空格字符串和两个换行html标签</br>
+        String[] split = content.split("\n");
+        StringBuilder sb = new StringBuilder();
+        for(String str:split){
+            sb.append("&nbsp;&nbsp;&nbsp;&nbsp;").append(str).append("</br></br>");
+        }
         BookContent bookContent = new BookContent();
-        int wordCount = StringUtil.getStrValidWordCount(content);
+        int wordCount = StringUtil.getStrValidWordCount(sb.toString());
         bookIndex.setWordCount(wordCount);
-        bookContent.setContent(content);
+        bookContent.setContent(sb.toString());
         bookContent.setIndexId(bookIndex.getId());
         return bookContent;
     }
