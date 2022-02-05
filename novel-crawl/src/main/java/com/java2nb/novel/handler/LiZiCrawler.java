@@ -124,6 +124,8 @@ public class LiZiCrawler extends BaseCrawler{
         BookContent bookContent = new BookContent();
         int wordCount = StringUtil.getStrValidWordCount(sb.toString());
         bookIndex.setWordCount(wordCount);
+        //设置价格
+        bookIndex.setBookPrice((int)Math.ceil(wordCount / 200));
         bookContent.setContent(sb.toString());
         bookContent.setIndexId(bookIndex.getId());
         return bookContent;
