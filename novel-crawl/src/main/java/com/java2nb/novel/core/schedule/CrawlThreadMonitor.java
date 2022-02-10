@@ -58,4 +58,11 @@ public class CrawlThreadMonitor {
         }
 
     }
+
+    @Scheduled(fixedRate = 1000 * 60 * 5)
+    public void pushBaiDu() {
+        //推送到百度
+
+        //http://data.zz.baidu.com/urls?site=www.lizhireader.com&token=Fs8VoDCCr7z0NoXa
+    }
 }

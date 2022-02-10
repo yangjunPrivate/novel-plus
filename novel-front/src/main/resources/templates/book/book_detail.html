@@ -2,11 +2,11 @@
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head th:replace="common/header :: common_head(~{::title},~{::meta},~{::link},~{})">
-    <title th:utext="${book.bookName}+'_'+${book.authorName}+'_'+${book.bookName}+'txt下载'+'_'+${book.bookName}+'无弹窗_'+${application.website.name}"></title>
+    <title th:utext="${book.bookName}+'-'+${book.authorName}+'-'+${application.website.name}"></title>
     <meta name="keywords"
-          th:content="${book.bookName}+'官方首发,'+${book.bookName}+'小说,'+${book.bookName}+'最新章节'+${book.bookName}+'txt下载,'+${book.bookName}+'无弹窗,'+${book.bookName}+'吧,'+${book.bookName}+'离线完本'"/>
+          th:content="${book.bookName}+','+${book.bookName}+'官方首发,'+${book.bookName}+'最新章节,'+${book.bookName}+'全文阅读,'+${book.bookName}+'下载免费阅读,'+${book.authorName}+'小说'+${book.bookName}+','+${book.bookName}+'全本免费下载'"/>
     <meta name="description"
-          th:content="${book.bookName}+','+${book.bookName}+'小说阅读,'+${book.bookName}+'由作家'+${book.authorName}+'创作,'+${application.website.name}+'提供'+${book.bookName}+'首发最新章节及txt下载,'+${book.bookName}+'最新更新章节,精彩尽在'+${application.website.name}+'。'"/>
+          th:content="${book.bookName}+' '+'简介'+${book.bookDesc}+',想看'+${book.authorName}+'(作者)所著'+${book.bookName}+'小说作品,就来'+${application.website.name}+'!'+${application.website.name}+'!'"/>
     <link rel="stylesheet" href="/css/main.css"/>
     <link href="/css/book.css?v=2019" rel="stylesheet"/>
 </head>

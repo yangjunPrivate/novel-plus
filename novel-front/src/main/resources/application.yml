@@ -3,9 +3,11 @@ server:
 
 spring:
   profiles:
-    active: dev
+    active: prod
     include: website,alipay,oss,fastdfs
-
+  mvc:
+    favicon:
+      enable: false
 
   rabbitmq:
     enable: 0

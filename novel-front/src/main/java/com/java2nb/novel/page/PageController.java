@@ -92,9 +92,7 @@ public class PageController extends BaseController {
         CompletableFuture<List<News>> newsCompletableFuture = CompletableFuture.supplyAsync(newsService::listIndexNews, threadPoolExecutor);
         model.addAttribute("bookMap", bookCompletableFuture.get());
         model.addAttribute("newsList", newsCompletableFuture.get());
-        String result =  ThreadLocalUtil.getTemplateDir() + "index";
-        log.info("index `result={}",result);
-        return result;
+        return ThreadLocalUtil.getTemplateDir() + "index";
     }
 
     /**
